@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولد أوراق أبحاث ICaTAS 2026 - تخصيص وتوليد فوري</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Application Header -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon">📑</div>
+      <div class="brand-titles">
+        <h1>
+          <span>مولد أوراق الأبحاث ICaTAS 2026</span>
+          <span class="badge-tech">HTML • CSS • JS</span>
+        </h1>
+        <p class="brand-desc">تخصيص الاسم والـ ID مع توليد ألوان عشوائية ومميزة لكل ملف</p>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <button id="btnQuickNew" class="btn-quick-new" title="توليد ألوان جديدة مميزة لمنع تشابه الملفات">
+        <span>🎲</span>
+        <span class="btn-text-full">توليد ملف جديد بألوان مختلفة</span>
+        <span class="btn-text-mobile">ألوان جديدة</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Work Area -->
+  <main class="app-container">
+
+    <!-- Left Controls Sidebar -->
+    <aside class="sidebar-panel">
+
+      <!-- Card 1: Student Credentials -->
+      <section class="control-card">
+        <h2 class="card-title">
+          <span class="card-icon">👤</span>
+          <span>بيانات الباحث / الطالب</span>
+        </h2>
+        
+        <div class="form-group">
+          <label for="inputName">الاسم الكامل (Full Name) <span>*</span></label>
+          <div class="input-wrapper">
+            <input type="text" id="inputName" placeholder="اكتب اسمك هنا (مثال: أحمد محمد علي)" autofocus autocomplete="off">
+            <span class="input-icon">✏️</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputId">الرقم التعريفي (ID Number) <span>*</span></label>
+          <div class="input-wrapper">
+            <input type="text" id="inputId" placeholder="اكتب الـ ID هنا (مثال: 20241052)" autocomplete="off">
+            <span class="input-icon">🪪</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Color Customization & Randomizer -->
+      <section class="control-card">
+        <h2 class="card-title">
+          <span class="card-icon">🎨</span>
+          <span>تغيير الألوان (تجنب تشابه الملفات)</span>
+        </h2>
+
+        <!-- Big Randomize Button -->
+        <button id="btnRandomize" class="btn-randomize" type="button">
+          <span class="dice-spin">🎲</span>
+          <span>توليد ألوان جديدة عشوائياً</span>
+        </button>
+
+        <!-- Active Palette Information -->
+        <div class="active-palette-preview">
+          <div class="palette-meta">
+            <span style="font-size:0.75rem; color:#94a3b8;">المظهر الحالي:</span>
+            <span id="activePaletteName" class="palette-name">الأصلي</span>
+          </div>
+          <div class="palette-swatches">
+            <div class="swatch-item" title="ترويسة المؤتمر">
+              <div id="swatchConf" class="swatch-circle"></div>
+              <span class="swatch-label">الترويسة</span>
+            </div>
+            <div class="swatch-item" title="الاسم والـ ID">
+              <div id="swatchNameId" class="swatch-circle"></div>
+              <span class="swatch-label">الاسم/ID</span>
+            </div>
+            <div class="swatch-item" title="الكلمات المفتاحية">
+              <div id="swatchKeywords" class="swatch-circle"></div>
+              <span class="swatch-label">Keywords</span>
+            </div>
+            <div class="swatch-item" title="تمييز المستخلص 1">
+              <div id="swatchHl1" class="swatch-circle"></div>
+              <span class="swatch-label">تمييز 1</span>
+            </div>
+            <div class="swatch-item" title="تمييز المستخلص 2">
+              <div id="swatchHl2" class="swatch-circle"></div>
+              <span class="swatch-label">تمييز 2</span>
+            </div>
+            <div class="swatch-item" title="نص النموذج">
+              <div id="swatchObs" class="swatch-circle"></div>
+              <span class="swatch-label">النموذج</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Presets Selection -->
+        <div class="form-group">
+          <label for="paletteSelect">اختر من النماذج الأكاديمية الجاهزة:</label>
+          <div class="select-wrapper">
+            <select id="paletteSelect">
+              <!-- Populated dynamically via JS -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Manual Color Pickers Collapsible -->
+        <details>
+          <summary class="accordion-toggle">
+            <span>⚙️ تعديل درجات الألوان يدوياً</span>
+            <span style="font-size: 0.75rem;">▼</span>
+          </summary>
+          <div class="color-pickers-grid">
+            <div class="picker-item">
+              <span>ترويسة المؤتمر:</span>
+              <input type="color" id="pickerConf" value="#6aa84f">
+            </div>
+            <div class="picker-item">
+              <span>الاسم والـ ID:</span>
+              <input type="color" id="pickerNameId" value="#ff0000">
+            </div>
+            <div class="picker-item">
+              <span>تمييز المستخلص 1:</span>
+              <input type="color" id="pickerHl1" value="#c99308">
+            </div>
+            <div class="picker-item">
+              <span>تمييز المستخلص 2:</span>
+              <input type="color" id="pickerHl2" value="#741b47">
+            </div>
+            <div class="picker-item">
+              <span>الكلمات المفتاحية:</span>
+              <input type="color" id="pickerKeywords" value="#0000ff">
+            </div>
+            <div class="picker-item">
+              <span>نص نموذج الرصد:</span>
+              <input type="color" id="pickerObs" value="#5a5a5a">
+            </div>
+          </div>
+        </details>
+      </section>
+
+      
+
+      <!-- Card 4: Exports and Downloads -->
+      <section class="control-card export-card">
+        <h2 class="card-title">
+          <span class="card-icon">💾</span>
+          <span>تصدير وتحميل الملف</span>
+        </h2>
+
+        <!-- Download Word DOCX -->
+        <button id="btnExportDocx" class="btn-export-docx" type="button">
+          <span>📥</span>
+          <span>تحميل ملف Word (DOCX)</span>
+        </button>
+
+      
+
+
+
+        <p style="font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 4px;">
+          يتم تجهيز الملفات وتطبيق الألوان وتضمين الصور فورياً داخل المتصفح بدون خادم خارجي.
+        </p>
+      </section>
+
+    </aside>
+
+    <!-- Right Document Canvas & Live Preview -->
+    <section class="preview-area">
+
+      <!-- Preview Toolbar -->
+      <div class="preview-toolbar">
+        <div class="toolbar-info">
+          <span class="paper-status-indicator"></span>
+          <span class="preview-badge">معاينة الورقة البحثية A4 مباشرة (Real-time Live Preview)</span>
+        </div>
+
+        <div class="toolbar-controls">
+          <button id="btnZoomOut" class="tool-btn" title="تصغير">🔍 -</button>
+          <span id="zoomLevelText" class="zoom-level-text">100%</span>
+          <button id="btnZoomIn" class="tool-btn" title="تكبير">🔍 +</button>
+          <button id="btnZoomReset" class="tool-btn" title="إعادة الضبط">↺ إعادة</button>
+        </div>
+      </div>
+
+      <!-- Viewport with A4 Paper Sheet -->
+      <div class="document-viewport">
+
+        <!-- THE EXACT A4 SHEET -->
+        <article class="a4-sheet" id="paperSheet">
+
+          <!-- 1. Conference Header -->
+          <header class="paper-conf-header">
+            <div class="conf-title">11th International Conference on Advanced Technology and Applied Sciences (ICaTAS 2026)</div>
+            <div class="conf-theme">
+              Theme: Advancing Engineering, Science and Technology for a Resilient and Sustainable Future <span>7–9 October 2026, Kuala Lumpur</span>
+            </div>
+            <div class="research-badge">RESEARCH ARTICLE</div>
+            <div class="header-divider"></div>
+          </header>
+
+          <!-- 2. Paper Title -->
+          <h1 class="paper-title">
+            Enhanced Passive ISAR Drone Surveillance Using Micro-Doppler-Assisted Multi-Bernoulli TBD Filtering
+          </h1>
+
+          <!-- 3. Student / Author Identification -->
+          <div class="student-block">
+            <div class="field-row">
+              <span class="field-label">NAME:</span>
+              <span id="previewName" class="field-value">[الاسم هنا]</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">ID:</span>
+              <span id="previewId" class="field-value">[الـ ID هنا]</span>
+            </div>
+          </div>
+
+          <!-- 4. Affiliation -->
+          <div class="affiliation">
+            ² Department of Electronics and Communication, Arab Academy for Science Technology and Maritime Transport, Cairo, Egypt
+          </div>
+
+          <!-- 5. Abstract & Article History Grid (Table 0 in DOCX) -->
+          <section class="abstract-grid">
+            <div class="abstract-left">
+              <span class="abstract-label">ABSTRACT –</span>
+              Passive Inverse Synthetic Aperture Radar (ISAR) systems provide an effective solution for covert drone surveillance in cluttered environments. However, tracking drones inside Doppler-blind zones (DBZs) remains challenging because target Doppler signatures overlap with stationary clutter under
+              <span class="hl-1">low signal-to-noise ratio (SNR) conditions. This paper proposes a Micro-Doppler-Assisted Track-Before-Detect Multi-Bernoulli Filter (mD-TBD-MBF) for passive ISAR drone tracking in DBZ environments. The proposed framework combines micro-Doppler harmonic extraction, TBD processing, and MB Random Finite Set filtering to improve weak target detection and tracking continuity</span>.
+              An adaptive harmonic-guided particle redistribution mechanism is introduced to enhance clutter robustness and preserve target observability during Doppler-blind-zone crossings. Simulation results demonstrate improved detection probability,
+              <span class="hl-2">reduced false alarms, and enhanced trajectory estimation accuracy compared with conventional tracking filters.</span>
+            </div>
+
+            <div class="abstract-right">
+              <div class="history-section">
+                <h4>ARTICLE HISTORY</h4>
+                <div class="history-list">
+                  <div class="history-row"><span>Received</span><span>: <strong id="historyReceived">#</strong></span></div>
+                  <div class="history-row"><span>Revised</span><span>: <strong id="historyRevised">#</strong></span></div>
+                  <div class="history-row"><span>Accepted</span><span>: <strong id="historyAccepted">#</strong></span></div>
+                  <div class="history-row"><span>Published</span><span>: <strong id="historyPublished">#</strong></span></div>
+                </div>
+              </div>
+
+              <div class="keywords-section">
+                <h4>KEYWORDS</h4>
+                <div class="keywords-list">
+                  <span>Passive ISAR radar</span>
+                  <span>Track-Before-Detect</span>
+                  <span>micro- Doppler</span>
+                  <span>MB filter</span>
+                  <span>UAV tracking</span>
+                  <span>Doppler-blind zone</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 6. Section 1: Introduction (Table 1 in DOCX) -->
+          <section class="paper-section">
+            <h3 class="section-heading">1. &nbsp;&nbsp;&nbsp;&nbsp; INTRODUCTION</h3>
+            <div class="two-col-layout">
+              <div class="text-col">
+                <p>
+                  The rapid proliferation of small unmanned aerial vehicles (UAVs) has created major challenges for modern radar surveillance systems. Commercial and military drones are increasingly being used in applications such as aerial photography, environmental monitoring, cargo transportation, precision agriculture, border patrol, and tactical reconnaissance [1].
+                </p>
+                <p>
+                  Despite their operational benefits, the widespread accessibility of UAV platforms has also introduced
+                </p>
+              </div>
+              <div class="image-col">
+                <img id="img1" src="images/image1.jpg" alt="Passive Bistatic ISAR Geometry Diagram">
+              </div>
+            </div>
+          </section>
+
+          <!-- 7. Section 3.1: ISAR-TBD Observation Model (Table 2 in DOCX) -->
+          <section class="paper-section">
+            <div class="two-col-layout" style="align-items: flex-start;">
+              <div class="text-col">
+                <h4 class="sub-heading">3.1 &nbsp;&nbsp;&nbsp;&nbsp; ISAR-TBD Observation Model</h4>
+                <p class="obs-text">
+                  Despite their operational benefits, the widespread accessibility of UAV platforms has also introduced
+                </p>
+                <div class="math-equation">
+                  <span><i>f</i><sub>D</sub> = (1 ⁄ &lambda;) (d ⁄ dt) (<i>R</i><sub>t</sub> + <i>R</i><sub>r</sub>)</span>
+                  <span>(1)</span>
+                </div>
+                <div class="math-equation">
+                  <span><i>s</i><sup>MD</sup>(<i>t</i>) = &Sigma;<sub><i>i</i>=1</sub><sup><i>N</i><sub>b</sub></sup> <i>A</i><sub><i>i</i></sub> cos(2&pi; <i>f</i><sub>r,<i>i</i></sub> <i>t</i> + &phi;<sub><i>i</i></sub>)</span>
+                  <span>(2)</span>
+                </div>
+              </div>
+              <div class="image-col">
+                <img id="img2" src="images/image2.jpg" alt="Figure 1 and Table 1 Simulation Parameters">
+              </div>
+            </div>
+          </section>
+
+          <!-- 8. Proposed Method Flowchart Diagram (Figure 3 in DOCX) -->
+          <section class="flowchart-container">
+            <img id="img3" src="images/image3.jpg" alt="Block diagram of mD-TBD-MBF Proposed Method">
+          </section>
+
+          <!-- 9. Subtle Footer Verification Bar -->
+          <footer class="paper-footer-meta">
+            <span>ICaTAS 2026 Proceedings • Faculty of Engineering</span>
+            <span>Document ID: <strong id="docSerial">ICATAS-2026-A101</strong></span>
+          </footer>
+
+        </article>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/jszip.min.js"></script>
+  <script src="js/assets_data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
