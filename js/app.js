@@ -470,30 +470,41 @@ function cleanHex(color) {
 }
 
 // ==========================================================================
-// EXPORT TO DOCX VIA JSZIP (Client-Side Pure JS)
+// EXPORT TO DOCX (Ultra-Reliable for Vercel, Local, and Mobile)
 // ==========================================================================
 async function exportDocx() {
-  if (!window.DOC_ASSETS || !window.DOC_ASSETS.docx_base64) {
-    showToast("خطأ: بيانات ملف الوورد الأصلي غير متوفرة", "error");
-    return;
-  }
-  
-  if (typeof JSZip === "undefined") {
-    showToast("خطأ: مكتبة JSZip غير محملة", "error");
-    return;
-  }
-  
   btnExportDocx.disabled = true;
-  btnExportDocx.innerHTML = `<span>⏳ جاري إنشاء ملف Word...</span>`;
+  btnExportDocx.innerHTML = `<span>⏳ جاري تجهيز وتحميل ملف Word...</span>`;
   
   try {
-    const rawB64 = window.DOC_ASSETS.docx_base64;
-    const zip = await JSZip.loadAsync(rawB64, { base64: true });
+    let zip = null;
+    
+    // 1. Try embedded Base64 first
+    if (window.DOC_ASSETS && window.DOC_ASSETS.docx_base64) {
+      try {
+        zip = await JSZip.loadAsync(window.DOC_ASSETS.docx_base64, { base64: true });
+      } catch (b64Err) {
+        console.warn("Base64 JSZip load failed, trying fetch fallback...", b64Err);
+      }
+    }
+    
+    // 2. Fetch directly from server as fallback (Guaranteed on Vercel)
+    if (!zip) {
+      try {
+        const resp = await fetch('assignment.docx');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const buffer = await resp.arrayBuffer();
+        zip = await JSZip.loadAsync(buffer);
+      } catch (fetchErr) {
+        console.error("Direct fetch failed:", fetchErr);
+        throw new Error("تعذر تحميل قالب ملف الوورد الأصلي. تأكد من اتصال الإنترنت.");
+      }
+    }
     
     let xml = await zip.file("word/document.xml").async("text");
     
-    const nameVal = currentState.studentName ? currentState.studentName : "Your Name Here";
-    const idVal = currentState.studentId ? currentState.studentId : "12345678";
+    const nameVal = (currentState.studentName || "").trim() || "Student";
+    const idVal = (currentState.studentId || "").trim() || "ID";
     
     // 1. Replace NAME: and ID:
     const originalFragment = '<w:t xml:space="preserve">NAME:</w:t><w:br w:type="textWrapping"/><w:t xml:space="preserve">ID:</w:t>';
@@ -502,7 +513,6 @@ async function exportDocx() {
     if (xml.includes(originalFragment)) {
       xml = xml.replace(originalFragment, replacementFragment);
     } else {
-      // Fallback regex replacement
       xml = xml.replace(/NAME:<\/w:t><w:br w:type="textWrapping"\/><w:t xml:space="preserve">ID:/g, `NAME: ${escapeXml(nameVal)}</w:t><w:br w:type="textWrapping"/><w:t xml:space="preserve">ID: ${escapeXml(idVal)}`);
     }
     
@@ -515,7 +525,6 @@ async function exportDocx() {
     const keywHex = cleanHex(p.keywords);
     const obsHex = cleanHex(p.obsText);
     
-    // Replace original color codes with new selected palette
     xml = xml.replace(/<w:color w:val="6aa84f"\/>/g, `<w:color w:val="${confHex}"/>`);
     xml = xml.replace(/<w:color w:val="ff0000"\/>/g, `<w:color w:val="${nameIdHex}"/>`);
     xml = xml.replace(/<w:color w:val="f1c232"\/>/g, `<w:color w:val="${hl1Hex}"/>`);
@@ -523,7 +532,7 @@ async function exportDocx() {
     xml = xml.replace(/<w:color w:val="0000ff"\/>/g, `<w:color w:val="${keywHex}"/>`);
     xml = xml.replace(/<w:color w:val="5a5a5a"\/>/g, `<w:color w:val="${obsHex}"/>`);
     
-    // 3. Replace dates if realistic dates enabled
+    // 3. Replace dates if enabled
     if (currentState.useRealisticDates) {
       xml = xml.replace(/<w:t xml:space="preserve">Received\s*:\s*#<\/w:t>/g, `<w:t xml:space="preserve">Received   : ${escapeXml(currentState.dates.received)}</w:t>`);
       xml = xml.replace(/<w:t xml:space="preserve">Revised\s*:\s*#<\/w:t>/g, `<w:t xml:space="preserve">Revised    : ${escapeXml(currentState.dates.revised)}</w:t>`);
@@ -533,20 +542,24 @@ async function exportDocx() {
     
     zip.file("word/document.xml", xml);
     
-    // Generate new docx Blob
+    // Generate blob
     const blob = await zip.generateAsync({
       type: "blob",
       mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     });
     
-    // Trigger download
-    const cleanFileName = `ICaTAS_2026_${sanitizeFileName(nameVal)}_${sanitizeFileName(idVal)}.docx`;
-    triggerBlobDownload(blob, cleanFileName);
+    // Generate safe filename (compatible with mobile and desktop download managers)
+    const safeName = sanitizeFileName(nameVal) || "Paper";
+    const safeId = sanitizeFileName(idVal) || "2026";
+    const downloadFileName = `ICaTAS_2026_${safeName}_${safeId}.docx`;
     
-    showToast(`تم تنزيل ملف الوورد (${cleanFileName}) بألوانك المخصصة بنجاح!`, "success");
+    // Download using FileSaver or robust anchor
+    triggerFileDownload(blob, downloadFileName);
+    
+    showToast(`تم تنزيل ملف الوورد (${downloadFileName}) بنجاح! 🎉`, "success");
   } catch (err) {
     console.error("DOCX Export Error:", err);
-    showToast(`فشل في إنشاء ملف الوورد: ${err.message}`, "error");
+    showToast(`خطأ أثناء إنشاء الملف: ${err.message}`, "error");
   } finally {
     btnExportDocx.disabled = false;
     btnExportDocx.innerHTML = `<span>📥 تحميل ملف Word (DOCX)</span>`;
@@ -627,7 +640,7 @@ function exportStandaloneHtml() {
 
   const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
   const fileName = `ICaTAS_2026_${sanitizeFileName(currentState.studentName || 'Student')}.html`;
-  triggerBlobDownload(blob, fileName);
+  triggerFileDownload(blob, fileName);
   showToast(`تم تحميل صفحة الويب المستقلة بنجاح!`, "success");
 }
 
@@ -647,20 +660,45 @@ function escapeXml(unsafe) {
 
 function sanitizeFileName(name) {
   if (!name) return "document";
-  return name.replace(/[^a-zA-Z0-9_\u0600-\u06FF-]/g, "_").slice(0, 30);
+  // Replace unsafe characters with underscore, trim to safe length
+  return name.replace(/[^\w\d_\u0600-\u06FF-]/g, "_").slice(0, 30);
 }
 
-function triggerBlobDownload(blob, filename) {
+// Universal Robust File Download (FileSaver + Blob Anchor + Extended Lifetime)
+function triggerFileDownload(blob, filename) {
+  // 1. Try FileSaver saveAs first (Best for iOS Safari, Android & Modern Browsers)
+  if (typeof window.saveAs === "function") {
+    try {
+      window.saveAs(blob, filename);
+      return;
+    } catch (e) {
+      console.warn("FileSaver saveAs failed, falling back to native anchor:", e);
+    }
+  }
+  
+  // 2. Native HTML5 Blob Download
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
+  a.style.display = "none";
   a.href = url;
   a.download = filename;
+  a.rel = "noopener";
   document.body.appendChild(a);
-  a.click();
+  
+  try {
+    a.click();
+  } catch (clickErr) {
+    console.warn("Direct click failed, opening in new tab:", clickErr);
+    window.open(url, "_blank");
+  }
+  
+  // Keep blob URL active for 60 seconds so mobile OS download managers can safely complete
   setTimeout(() => {
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, 100);
+    try {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (cleanupErr) {}
+  }, 60000);
 }
 
 // Run on load
